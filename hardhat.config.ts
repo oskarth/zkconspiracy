@@ -4,7 +4,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import "hardhat-circom";
 
 const config: HardhatUserConfig = {
-    solidity: "0.7.3",
+    solidity: "0.6.11",
 };
 
 export default config;
@@ -14,7 +14,7 @@ export default config;
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.7.3",
+  solidity: "0.6.11",
   circom: {
     inputBasePath: "./circuits",
     ptau: "pot15_final.ptau",
