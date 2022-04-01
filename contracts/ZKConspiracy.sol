@@ -25,7 +25,7 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
 
     mapping(bytes32 => bool) public nullifierHashes;
 
-    event Register(
+    event Registration(
         bytes32 indexed commitment,
         uint32 leafIndex,
         uint256 timestamp
@@ -55,7 +55,7 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
     function register(bytes32 _commitment) external payable nonReentrant {
         uint32 insertedIndex = _insert(_commitment);
 
-        emit Register(_commitment, insertedIndex, block.timestamp);
+        emit Registration(_commitment, insertedIndex, block.timestamp);
     }
 
     // TODO Attest/tap function
