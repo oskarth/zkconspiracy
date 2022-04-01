@@ -2963,7 +2963,7 @@
   "resolved" "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
   "version" "3.0.0"
 
-"snarkjs@^0.4.14":
+"snarkjs@^0.4.14", "snarkjs@^0.4.15":
   "integrity" "sha512-nyjzLKiNKEnq87RpwnSA/QxjYgIQNFq/IBNmesfPM2ijs/evROvmgM+wjVsdd6UxKc0UDgWbdFJxTffOjftJPg=="
   "resolved" "https://registry.npmjs.org/snarkjs/-/snarkjs-0.4.15.tgz"
   "version" "0.4.15"
