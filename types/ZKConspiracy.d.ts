@@ -122,13 +122,13 @@ interface ZKConspiracyInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "zeros", data: BytesLike): Result;
 
   events: {
-    "Register(bytes32,uint32,uint256)": EventFragment;
+    "Registration(bytes32,uint32,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Register"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Registration"): EventFragment;
 }
 
-export type RegisterEvent = TypedEvent<
+export type RegistrationEvent = TypedEvent<
   [string, number, BigNumber] & {
     commitment: string;
     leafIndex: number;
@@ -316,7 +316,7 @@ export class ZKConspiracy extends BaseContract {
   };
 
   filters: {
-    "Register(bytes32,uint32,uint256)"(
+    "Registration(bytes32,uint32,uint256)"(
       commitment?: BytesLike | null,
       leafIndex?: null,
       timestamp?: null
@@ -325,7 +325,7 @@ export class ZKConspiracy extends BaseContract {
       { commitment: string; leafIndex: number; timestamp: BigNumber }
     >;
 
-    Register(
+    Registration(
       commitment?: BytesLike | null,
       leafIndex?: null,
       timestamp?: null
