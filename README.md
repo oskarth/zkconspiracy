@@ -18,7 +18,15 @@ that address's tap score.
 ## TODOs
 
 - [x] Skeleton project with circuits and contract
-- [ ] First cut at Circom constraints with tests
-- [ ] Attestations logic
+- [x] First cut at Circom constraints with tests
+- [ ] Basic identity generation
+- [ ] Attestations: Basic data structure and logic
+- [ ] Attestations: Ensure only members who joined can attest
+- [ ] Attestations: Ensure no double attestation possible
+- [ ] Joining: Ensure only people who have 2 attestations can join
 - [ ] PoC frontend
 - [ ] Solve bootstrap problem (first 2-3 users)
+
+Enhancements:
+- [ ] Hide attestation data? Alt representation
+- [ ] Use ETH keys instead of generated Semaphore identities?
