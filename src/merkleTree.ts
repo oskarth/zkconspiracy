@@ -54,8 +54,11 @@ export class MerkleTree {
         this.zero_values = [];
         this.totalElements = 0;
 
-        let current_zero_value =
-            "21663839004416932945382355908790599225266501822907911457504978515578255421292";
+        //let current_zero_value =
+        //    "21663839004416932945382355908790599225266501822907911457504978515578255421292";
+        // Hex rep
+        let current_zero_value = "0x2fe54c60d3acabf3343a35b6eba15db4821b340f76e741e2249685ed4899af6c";
+
         this.zero_values.push(current_zero_value);
         for (let i = 0; i < n_levels; i++) {
             current_zero_value = this.hasher.hash(
