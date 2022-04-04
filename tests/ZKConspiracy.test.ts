@@ -104,10 +104,11 @@ describe("ZKConspiracy", function () {
     }).timeout(500000);
 
     // TODO WIP - register and prove membership?
-    it("register", async function () {
+    it("register and attest", async function () {
         const [userOldSigner, relayerSigner, userNewSigner] =
             await ethers.getSigners();
         const registration = Registration.new(poseidon);
+        const registration2 = Registration.new(poseidon);
 
         const tx = await zkconspiracy
             .connect(userOldSigner)
@@ -140,6 +141,10 @@ describe("ZKConspiracy", function () {
             registration.leafIndex
         );
 
+        console.log("root", root, "path_elements", path_elements, "path_index", path_index);
+
+        // TODO Add test here
+
         // TODO Adapt ZK proof here
 
         // const witness = {
@@ -162,6 +167,20 @@ describe("ZKConspiracy", function () {
         //     .withdraw(solProof, root, nullifierHash, recipient, relayer, fee);
         // const receiptWithdraw = await txWithdraw.wait();
         // console.log("Withdraw gas cost", receiptWithdraw.gasUsed.toNumber());
+
+        // XXX Connect with original signer?
+        // TODO Add proof, root etc
+        //
+        const txAttest = await zkconspiracy
+            .connect(userOldSigner)
+            .attest(registration2.commitment);
+        const receiptAttest = await txAttest.wait();
+        console.log("receiptAttest", receiptAttest);
+        console.log("Attestation gas cost", receiptAttest.gasUsed.toNumber());
+
+        // TODO How check contract state...?
+        let attestations = await zkconspiracy.attestations(registration2.commitment);
+        console.log("Attestations", attestations);
 
     }).timeout(500000);
 
