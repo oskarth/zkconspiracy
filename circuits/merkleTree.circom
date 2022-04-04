@@ -39,5 +39,3 @@ template MerkleTreeChecker(levels) {
     log(hashers[levels-1].out);
     root === hashers[levels - 1].out;
 }
-
-component main { public [ leaf, root, pathElements, pathIndices ] } = MerkleTreeChecker(2);
