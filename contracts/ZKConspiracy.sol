@@ -25,10 +25,18 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
 
     mapping(bytes32 => bool) public nullifierHashes;
 
+    // Mapping from address to number of attestations
+    mapping(bytes32 => uint32) public attestations;
+
     event Registration(
         bytes32 indexed commitment,
         uint32 leafIndex,
         uint256 timestamp
+    );
+
+    event Attestation(
+        bytes32 tapee,
+        uint32 attestations
     );
 
     // TODO: Require attestations to register
@@ -59,5 +67,13 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
     }
 
     // TODO Attest/tap function
-
+    // Do we need the attestation here, who is doing it? Or is this part of zk proof?
+    // This is "equivalent" to withdraw, i.e. we want proof here
+    // TODO Add Proof calldata _proof
+    function attest(bytes32 tapee) external nonReentrant {
+        // TODO Can only attest if ZK proof is valid
+        // TODO Should increment attestation count
+        attestations[tapee] += 1;
+        emit Attestation(tapee, attestations[tapee]);
+    }
 }
