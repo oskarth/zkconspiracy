@@ -80,8 +80,8 @@ class Registration {
     }
     static new(poseidon: any) {
         // XXX For easier debugging
-        const nullifier = new Uint8Array(15);
-        //const nullifier = ethers.utils.randomBytes(15);
+        //const nullifier = new Uint8Array(15);
+        const nullifier = ethers.utils.randomBytes(15);
         return new this(nullifier, poseidon);
     }
     get commitment() {
@@ -111,7 +111,6 @@ describe("ZKConspiracy", function () {
         accounts = await ethers.getSigners();
         const [signer] = await ethers.getSigners();
         const verifier = await new Verifier__factory(signer).deploy();
-        console.log(verifier);
         poseidonContract = await getPoseidonFactory(2).connect(signer).deploy();
         zkconspiracy = await new ZKConspiracy__factory(signer).deploy(
             verifier.address,
@@ -173,8 +172,7 @@ describe("ZKConspiracy", function () {
             root,
             nullifierHash,
             // Private
-            //nullifier: BigNumber.from(registration.nullifier).toBigInt(),
-            nullifier: 0,
+            nullifier: BigNumber.from(registration.nullifier).toBigInt(),
             pathElements: path_elements,
             pathIndices: path_index,
         };
