@@ -20,7 +20,7 @@ module.exports = {
     ptau: "pot15_final.ptau",
     circuits: [
       {
-        name: "merklechecker",
+        name: "merkleTree",
         protocol: "groth16"
       }
     ],
