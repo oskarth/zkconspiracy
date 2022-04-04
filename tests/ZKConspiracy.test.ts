@@ -8,11 +8,13 @@ import { BigNumber, BigNumberish, Contract, ContractFactory, Signer } from "ethe
 import { MerkleTree, Hasher } from "../src/merkleTree";
 // @ts-ignore
 import { groth16 } from "snarkjs";
+import path from "path";
 
 // @ts-ignore
 import { poseidonContract, buildPoseidon } from "circomlibjs";
 
-const HEIGHT = 20;
+//const HEIGHT = 20;
+const HEIGHT = 2;
 
 function poseidonHash(poseidon: any, inputs: BigNumberish[]): string {
     const hash = poseidon(inputs.map((x) => BigNumber.from(x).toBigInt()));
@@ -44,6 +46,29 @@ function getPoseidonFactory(nInputs: number) {
     return new ContractFactory(abi, bytecode);
 }
 
+interface Proof {
+    a: [BigNumberish, BigNumberish];
+    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+    c: [BigNumberish, BigNumberish];
+}
+
+async function prove(witness: any): Promise<Proof> {
+    const wasmPath = path.join(__dirname, "../circuits/attest.wasm");
+    const zkeyPath = path.join(__dirname, "../circuits/attest.zkey");
+
+    const { proof } = await groth16.fullProve(witness, wasmPath, zkeyPath);
+
+    const solProof: Proof = {
+        a: [proof.pi_a[0], proof.pi_a[1]],
+        b: [
+            [proof.pi_b[0][1], proof.pi_b[0][0]],
+            [proof.pi_b[1][1], proof.pi_b[1][0]],
+        ],
+        c: [proof.pi_c[0], proof.pi_c[1]],
+    };
+    return solProof;
+}
+
 // TODO Refactor, this can be simplified probably
 class Registration {
     private constructor(
@@ -54,7 +79,9 @@ class Registration {
         this.poseidon = poseidon;
     }
     static new(poseidon: any) {
-        const nullifier = ethers.utils.randomBytes(15);
+        // XXX For easier debugging
+        const nullifier = new Uint8Array(15);
+        //const nullifier = ethers.utils.randomBytes(15);
         return new this(nullifier, poseidon);
     }
     get commitment() {
@@ -84,6 +111,7 @@ describe("ZKConspiracy", function () {
         accounts = await ethers.getSigners();
         const [signer] = await ethers.getSigners();
         const verifier = await new Verifier__factory(signer).deploy();
+        console.log(verifier);
         poseidonContract = await getPoseidonFactory(2).connect(signer).deploy();
         zkconspiracy = await new ZKConspiracy__factory(signer).deploy(
             verifier.address,
@@ -132,53 +160,40 @@ describe("ZKConspiracy", function () {
         assert.equal(tree.totalElements, await zkconspiracy.nextIndex());
         assert.equal(await tree.root(), await zkconspiracy.roots(1));
 
+        //console.log("Tree:\n", tree);
+
         const nullifierHash = registration.nullifierHash;
-        const recipient = await userNewSigner.getAddress();
-        const relayer = await relayerSigner.getAddress();
-        const fee = 0;
 
         const { root, path_elements, path_index } = await tree.path(
             registration.leafIndex
         );
 
-        console.log("root", root, "path_elements", path_elements, "path_index", path_index);
+        const witness = {
+            // Public
+            root,
+            nullifierHash,
+            // Private
+            //nullifier: BigNumber.from(registration.nullifier).toBigInt(),
+            nullifier: 0,
+            pathElements: path_elements,
+            pathIndices: path_index,
+        };
 
-        // TODO Add test here
+        //console.log("Witness:", witness);
 
-        // TODO Adapt ZK proof here
+        const solProof = await prove(witness);
 
-        // const witness = {
-        //     // Public
-        //     root,
-        //     nullifierHash,
-        //     recipient,
-        //     relayer,
-        //     fee,
-        //     // Private
-        //     nullifier: BigNumber.from(deposit.nullifier).toBigInt(),
-        //     pathElements: path_elements,
-        //     pathIndices: path_index,
-        // };
+        const attestee = registration2.commitment;
 
-        // const solProof = await prove(witness);
+        //console.log("solProof", solProof, "root", root, "nullifierHash", nullifierHash, "attestee", attestee);
 
-        // const txWithdraw = await tornado
-        //     .connect(relayerSigner)
-        //     .withdraw(solProof, root, nullifierHash, recipient, relayer, fee);
-        // const receiptWithdraw = await txWithdraw.wait();
-        // console.log("Withdraw gas cost", receiptWithdraw.gasUsed.toNumber());
-
-        // XXX Connect with original signer?
-        // TODO Add proof, root etc
-        //
         const txAttest = await zkconspiracy
             .connect(userOldSigner)
-            .attest(registration2.commitment);
+            .attest(solProof, root, nullifierHash, attestee);
+
         const receiptAttest = await txAttest.wait();
-        console.log("receiptAttest", receiptAttest);
         console.log("Attestation gas cost", receiptAttest.gasUsed.toNumber());
 
-        // TODO How check contract state...?
         let attestations = await zkconspiracy.attestations(registration2.commitment);
         console.log("Attestations", attestations);
 
