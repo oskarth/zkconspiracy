@@ -16,7 +16,7 @@ interface IVerifier {
         uint256[2] calldata a,
         uint256[2][2] calldata b,
         uint256[2] calldata c,
-        uint256[5] calldata input
+        uint256[2] calldata input
         ) external view returns (bool);
 }
 
@@ -35,7 +35,8 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
     );
 
     event Attestation(
-        bytes32 tapee,
+        bytes32 attestee,
+        bytes32 nullifierHash,
         uint32 attestations
     );
 
@@ -65,15 +66,38 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
 
         emit Registration(_commitment, insertedIndex, block.timestamp);
     }
+    /**
+    @dev Allows registered users to attests to an attestee. `proof` is a zkSNARK
+    proof data, and input is an array of circuit public inputs. `input` array
+    consists of:
+      - merkle root of all registrations in the contract
+      (- hash of unique deposit nullifier to prevent double attestations)
+      - the attestee target
+    */
+    function attest(
+        Proof calldata _proof,
+        bytes32 _root,
+        bytes32 _nullifierHash,
+        bytes32 _attestee
+    ) external nonReentrant {
+        // TODO Allow multiple attestations, should be unique per attestee
+        require(!nullifierHashes[_nullifierHash], "User has already attested");
+        require(
+            verifier.verifyProof(
+                _proof.a,
+                _proof.b,
+                _proof.c,
+                [
+                    uint256(_root),
+                    uint256(_nullifierHash)
+                 ]
+            ),
+            "Invalid membership proof"
+        );
 
-    // TODO Attest/tap function
-    // Do we need the attestation here, who is doing it? Or is this part of zk proof?
-    // This is "equivalent" to withdraw, i.e. we want proof here
-    // TODO Add Proof calldata _proof
-    function attest(bytes32 tapee) external nonReentrant {
-        // TODO Can only attest if ZK proof is valid
-        // TODO Should increment attestation count
-        attestations[tapee] += 1;
-        emit Attestation(tapee, attestations[tapee]);
+        nullifierHashes[_nullifierHash] = true;
+
+        attestations[_attestee] += 1;
+        emit Attestation(_attestee, _nullifierHash, attestations[_attestee]);
     }
 }

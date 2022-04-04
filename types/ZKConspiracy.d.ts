@@ -25,7 +25,7 @@ interface ZKConspiracyInterface extends ethers.utils.Interface {
     "FIELD_SIZE()": FunctionFragment;
     "ROOT_HISTORY_SIZE()": FunctionFragment;
     "ZERO_VALUE()": FunctionFragment;
-    "attest(bytes32)": FunctionFragment;
+    "attest((uint256[2],uint256[2][2],uint256[2]),bytes32,bytes32,bytes32)": FunctionFragment;
     "attestations(bytes32)": FunctionFragment;
     "currentRootIndex()": FunctionFragment;
     "filledSubtrees(uint256)": FunctionFragment;
@@ -54,7 +54,19 @@ interface ZKConspiracyInterface extends ethers.utils.Interface {
     functionFragment: "ZERO_VALUE",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "attest", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "attest",
+    values: [
+      {
+        a: [BigNumberish, BigNumberish];
+        b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+        c: [BigNumberish, BigNumberish];
+      },
+      BytesLike,
+      BytesLike,
+      BytesLike
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "attestations",
     values: [BytesLike]
@@ -135,7 +147,7 @@ interface ZKConspiracyInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "zeros", data: BytesLike): Result;
 
   events: {
-    "Attestation(bytes32,uint32)": EventFragment;
+    "Attestation(bytes32,bytes32,uint32)": EventFragment;
     "Registration(bytes32,uint32,uint256)": EventFragment;
   };
 
@@ -144,7 +156,11 @@ interface ZKConspiracyInterface extends ethers.utils.Interface {
 }
 
 export type AttestationEvent = TypedEvent<
-  [string, number] & { tapee: string; attestations: number }
+  [string, string, number] & {
+    attestee: string;
+    nullifierHash: string;
+    attestations: number;
+  }
 >;
 
 export type RegistrationEvent = TypedEvent<
@@ -206,7 +222,14 @@ export class ZKConspiracy extends BaseContract {
     ZERO_VALUE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     attest(
-      tapee: BytesLike,
+      _proof: {
+        a: [BigNumberish, BigNumberish];
+        b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+        c: [BigNumberish, BigNumberish];
+      },
+      _root: BytesLike,
+      _nullifierHash: BytesLike,
+      _attestee: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -262,7 +285,14 @@ export class ZKConspiracy extends BaseContract {
   ZERO_VALUE(overrides?: CallOverrides): Promise<BigNumber>;
 
   attest(
-    tapee: BytesLike,
+    _proof: {
+      a: [BigNumberish, BigNumberish];
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+      c: [BigNumberish, BigNumberish];
+    },
+    _root: BytesLike,
+    _nullifierHash: BytesLike,
+    _attestee: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -311,7 +341,17 @@ export class ZKConspiracy extends BaseContract {
 
     ZERO_VALUE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    attest(tapee: BytesLike, overrides?: CallOverrides): Promise<void>;
+    attest(
+      _proof: {
+        a: [BigNumberish, BigNumberish];
+        b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+        c: [BigNumberish, BigNumberish];
+      },
+      _root: BytesLike,
+      _nullifierHash: BytesLike,
+      _attestee: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     attestations(arg0: BytesLike, overrides?: CallOverrides): Promise<number>;
 
@@ -353,20 +393,22 @@ export class ZKConspiracy extends BaseContract {
   };
 
   filters: {
-    "Attestation(bytes32,uint32)"(
-      tapee?: null,
+    "Attestation(bytes32,bytes32,uint32)"(
+      attestee?: null,
+      nullifierHash?: null,
       attestations?: null
     ): TypedEventFilter<
-      [string, number],
-      { tapee: string; attestations: number }
+      [string, string, number],
+      { attestee: string; nullifierHash: string; attestations: number }
     >;
 
     Attestation(
-      tapee?: null,
+      attestee?: null,
+      nullifierHash?: null,
       attestations?: null
     ): TypedEventFilter<
-      [string, number],
-      { tapee: string; attestations: number }
+      [string, string, number],
+      { attestee: string; nullifierHash: string; attestations: number }
     >;
 
     "Registration(bytes32,uint32,uint256)"(
@@ -396,7 +438,14 @@ export class ZKConspiracy extends BaseContract {
     ZERO_VALUE(overrides?: CallOverrides): Promise<BigNumber>;
 
     attest(
-      tapee: BytesLike,
+      _proof: {
+        a: [BigNumberish, BigNumberish];
+        b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+        c: [BigNumberish, BigNumberish];
+      },
+      _root: BytesLike,
+      _nullifierHash: BytesLike,
+      _attestee: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -456,7 +505,14 @@ export class ZKConspiracy extends BaseContract {
     ZERO_VALUE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     attest(
-      tapee: BytesLike,
+      _proof: {
+        a: [BigNumberish, BigNumberish];
+        b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]];
+        c: [BigNumberish, BigNumberish];
+      },
+      _root: BytesLike,
+      _nullifierHash: BytesLike,
+      _attestee: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
