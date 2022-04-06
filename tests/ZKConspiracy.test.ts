@@ -130,6 +130,19 @@ describe("ZKConspiracy", function () {
         assert.equal(res.toString(), poseidon.F.toString(res2));
     }).timeout(500000);
 
+    it("register should fail with no attestations", async function () {
+        const [userSigner1] =
+            await ethers.getSigners();
+
+        const registration = Registration.new(poseidon);
+
+        await expect(
+            zkconspiracy
+                .connect(userSigner1)
+                .register(registration.commitment))
+            .to.be.revertedWith("User doesn't have enough attestations");
+    }).timeout(500000);
+
     it("register and attest", async function () {
         const [userSigner1, userSigner2] =
             await ethers.getSigners();
