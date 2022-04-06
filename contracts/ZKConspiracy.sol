@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "./MerkleTreeWithHistory.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+
 struct Proof {
     uint256[2] a;
     uint256[2][2] b;
@@ -62,6 +63,7 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
     @param _commitment the note commitment, which is PedersenHash(nullifier + secret)
     */
     function register(bytes32 _commitment) external payable nonReentrant {
+        require(attestations[_commitment] > 1, "User doesn't have enough attestations");
         uint32 insertedIndex = _insert(_commitment);
 
         emit Registration(_commitment, insertedIndex, block.timestamp);
