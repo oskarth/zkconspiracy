@@ -130,15 +130,15 @@ describe("ZKConspiracy", function () {
         assert.equal(res.toString(), poseidon.F.toString(res2));
     }).timeout(500000);
 
-    // TODO WIP - register and prove membership?
     it("register and attest", async function () {
-        const [userOldSigner, relayerSigner, userNewSigner] =
+        const [userSigner1, userSigner2] =
             await ethers.getSigners();
+
         const registration = Registration.new(poseidon);
         const registration2 = Registration.new(poseidon);
 
         const tx = await zkconspiracy
-            .connect(userOldSigner)
+            .connect(userSigner1)
             .register(registration.commitment);
         const receipt = await tx.wait();
         const events = await zkconspiracy.queryFilter(
@@ -154,6 +154,8 @@ describe("ZKConspiracy", function () {
             "test",
             new PoseidonHasher(poseidon)
         );
+
+        // asserts
         assert.equal(await tree.root(), await zkconspiracy.roots(0));
         await tree.insert(registration.commitment);
         assert.equal(tree.totalElements, await zkconspiracy.nextIndex());
@@ -186,7 +188,7 @@ describe("ZKConspiracy", function () {
         //console.log("solProof", solProof, "root", root, "nullifierHash", nullifierHash, "attestee", attestee);
 
         const txAttest = await zkconspiracy
-            .connect(userOldSigner)
+            .connect(userSigner1)
             .attest(solProof, root, nullifierHash, attestee);
 
         const receiptAttest = await txAttest.wait();
@@ -196,7 +198,5 @@ describe("ZKConspiracy", function () {
         console.log("Attestations", attestations);
 
     }).timeout(500000);
-
-
 
 });
