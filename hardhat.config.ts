@@ -3,6 +3,8 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import "hardhat-circom";
 
+import "@nomiclabs/hardhat-waffle";
+
 const config: HardhatUserConfig = {
     solidity: "0.7.3",
 };
