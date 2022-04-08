@@ -24,6 +24,10 @@ module.exports = {
       {
         name: "attest",
         protocol: "groth16"
+      },
+      {
+        name: "join",
+        protocol: "groth16"
       }
     ],
   },
