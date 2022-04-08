@@ -69,6 +69,23 @@ async function prove(witness: any): Promise<Proof> {
     return solProof;
 }
 
+async function proveJoin(witness: any): Promise<Proof> {
+    const wasmPath = path.join(__dirname, "../circuits/join.wasm");
+    const zkeyPath = path.join(__dirname, "../circuits/join.zkey");
+
+    const { proof } = await groth16.fullProve(witness, wasmPath, zkeyPath);
+
+    const solProof: Proof = {
+        a: [proof.pi_a[0], proof.pi_a[1]],
+        b: [
+            [proof.pi_b[0][1], proof.pi_b[0][0]],
+            [proof.pi_b[1][1], proof.pi_b[1][0]],
+        ],
+        c: [proof.pi_c[0], proof.pi_c[1]],
+    };
+    return solProof;
+}
+
 // TODO Refactor, this can be simplified probably
 class Registration {
     private constructor(
@@ -94,7 +111,6 @@ class Registration {
         return poseidonHash(this.poseidon, [this.nullifier, 1, this.leafIndex]);
     }
 }
-
 
 describe("ZKConspiracy", function () {
     let zkconspiracy: ZKConspiracy;
@@ -205,6 +221,46 @@ describe("ZKConspiracy", function () {
 
         let attestations = await zkconspiracy.attestations(registration2.commitment);
         console.log("Attestations", attestations);
+
+    }).timeout(500000);
+
+    it("generates mock join zk proof", async function () {
+        // TODO Actually generate this instead of ad hoc hardcoded
+
+        let root = "337630155020736422130827831883849139981456036574644600587839773016543233712";
+        let pubKey = "0x12ce9dd75023ce577c9e166dd185b380a4de764463209a55057f2b3bd7b5f16d";
+        let privKey = "0";
+        let attestationPubKey = "0";
+        let attestationMsgHash = "2388415516175506382357674942738882686706058103539280497132142178878632190249";
+        let attestationMsgPathElements = [
+            "0x2fe54c60d3acabf3343a35b6eba15db4821b340f76e741e2249685ed4899af6c",
+            "0x13e37f2d6cb86c78ccc1788607c2b199788c6bb0a615a21f2e7a8e88384222f8"
+        ];
+        let attestationMsgPathIndices = ["0", "0"];
+        let attestationMsgAttestation = "0";
+        let attestationR = "0";
+        let attestationS = "0";
+
+        const witness = {
+            // public
+            root,
+            pubKey,
+            // private
+            privKey,
+            attestationPubKey,
+            attestationMsgHash,
+            attestationMsgPathElements,
+            attestationMsgPathIndices,
+            attestationMsgAttestation,
+            attestationR,
+            attestationS
+        };
+
+        //     BigNumber.from(registration.nullifier).toBigInt(),
+
+        const solProof = await proveJoin(witness);
+
+        console.log(solProof);
 
     }).timeout(500000);
 
