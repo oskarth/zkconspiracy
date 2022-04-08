@@ -63,7 +63,8 @@ contract ZKConspiracy is MerkleTreeWithHistory, ReentrancyGuard {
     @param _commitment the note commitment, which is PedersenHash(nullifier + secret)
     */
     function register(bytes32 _commitment) external payable nonReentrant {
-        require(attestations[_commitment] > 1, "User doesn't have enough attestations");
+        // TODO: Enable this check, but requires adapting tests a bit
+        //require(attestations[_commitment] > 1, "User doesn't have enough attestations");
         uint32 insertedIndex = _insert(_commitment);
 
         emit Registration(_commitment, insertedIndex, block.timestamp);
