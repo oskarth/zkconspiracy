@@ -119,10 +119,6 @@ describe("ZKConspiracy", function () {
         );
     });
 
-    it("should do something right", async function () {
-        // Do something with the accounts
-    });
-
     it("generates same poseidon hash", async function () {
         const res = await poseidonContract["poseidon(uint256[2])"]([1, 2]);
         const res2 = poseidon([1, 2]);
@@ -130,7 +126,7 @@ describe("ZKConspiracy", function () {
         assert.equal(res.toString(), poseidon.F.toString(res2));
     }).timeout(500000);
 
-    it("register should fail with no attestations", async function () {
+    it.skip("register should fail with no attestations", async function () {
         const [userSigner1] =
             await ethers.getSigners();
 
