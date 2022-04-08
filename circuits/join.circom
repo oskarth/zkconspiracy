@@ -27,6 +27,7 @@ template MockECSDAVerify() {
     signal output result;
 
     result <== 1;
+}
 
 // When joining, prove have enough assertions from pubkeys that are in tree
 // Prove in tree with pubKey, treePosition
@@ -110,19 +111,3 @@ template Join(levels) {
 
 // TODO Increase levels to 20
 component main { public [ root, pubKey ] } = Join(2);
-
-/* INPUT = {
-    "root": "337630155020736422130827831883849139981456036574644600587839773016543233712",
-    "pubKey": "0x12ce9dd75023ce577c9e166dd185b380a4de764463209a55057f2b3bd7b5f16d",
-    "privKey": "0",
-    "attestationPubKey": "0",
-    "attestationMsgHash": "2388415516175506382357674942738882686706058103539280497132142178878632190249",
-    "attestationMsgPathElements": [
-        "0x2fe54c60d3acabf3343a35b6eba15db4821b340f76e741e2249685ed4899af6c",
-        "0x13e37f2d6cb86c78ccc1788607c2b199788c6bb0a615a21f2e7a8e88384222f8"
-        ],
-    "attestationMsgPathIndices": ["0", "0"],
-    "attestationMsgAttestation": "0",
-    "attestationR": "0",
-    "attestationS": "0"
-} */
